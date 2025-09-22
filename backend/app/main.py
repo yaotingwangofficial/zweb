@@ -27,6 +27,10 @@ app.add_middleware(
 # 设置静态文件目录为 frontend
 app.mount("/frontend", StaticFiles(directory="app/frontend"), name="frontend")
 
+# Mount the dataset directory to serve video files
+app.mount("/dataset", StaticFiles(directory="../dataset"), name="dataset")
+
+
 # 将根路径指向 index.html
 @app.get("/")
 async def index():

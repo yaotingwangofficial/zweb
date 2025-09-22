@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>Annotation Page</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="../styles.css" rel="stylesheet" />
+  <style>
+    .layout-container {
+      display: flex;
+      flex-direction: row;
+      height: calc(100vh - 56px); /* Subtract header height */
+      margin-top: 16px;
+    }
+    
+    .video-panel {
+      width: 25vw;
+      height: 100%;
+      position: fixed;
+      top: 56px; /* Below header */
+      left: 0;
+      background: #0e141b;
+      border-right: 1px solid var(--border);
+      padding: 16px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .video-panel h2 {
+      margin-top: 0;
+    }
+    
+    .video-container {
+      flex: 1;
+      background: #0a0f15;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .video-container video {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+    }
+    
+    .main-content {
+      width: 75vw;
+      margin-left: 25vw; /* Same as video panel width */
+      padding: 0 16px;
+    }
+    
+    .task-info-panel {
+      margin-bottom: 16px;
+    }
+    
+    .frames-container {
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 10px;
+      background: #0a0f15;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    
+    .frame-item {
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .frame-item:last-child {
+      border-bottom: none;
+    }
+    
+    .frame-image {
+      width: 80px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-right: 12px;
+    }
+    
+    .frame-info {
+      flex: 1;
+    }
+    
+    .frame-name {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .frame-number {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body class="page">
+  <header class="topbar">
+    <div class="brand"><a href="../task_instance.html" class="brand__link">← 返回任务列表</a></div>
+    <div class="userbox">
+      <span id="welcomeUser"></span>
+      <button class="btn btn--ghost" id="logoutBtn">退出</button>
+    </div>
+  </header>
+
+  <div class="layout-container">
+    <div class="video-panel">
+      <h2>Video Player</h2>
+      <div class="video-container">
+        <video id="videoPlayer" controls style="display: none;">
+          Your browser does not support the video tag.
+        </video>
+        <p id="loadingMessage">Loading video...</p>
+      </div>
+      <div class="panel" style="margin-top: 16px;">
+        <p><strong>Category:</strong> <span id="categoryValue">-</span></p>
+        <p><strong>Base Name:</strong> <span id="baseNameValue">-</span></p>
+        <p><strong>Video Path:</strong> <span id="videoPath">-</span></p>
+      </div>
+    </div>
+    
+    <div class="main-content">
+      <h1 class="title">Video Annotation</h1>
+      
+      <div class="panel task-info-panel">
+        <h2>Annotation Tools</h2>
+        <p class="muted">Here will be the annotation tools</p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+          <button class="btn">Bounding Box</button>
+          <button class="btn">Polygon</button>
+          <button class="btn">Mask</button>
+          <button class="btn btn--primary">Save</button>
+        </div>
+      </div>
+      
+      <div class="panel">
+        <h2>Annotation Workspace</h2>
+        <p class="muted">This is where the main annotation work will happen</p>
+        <div id="framesContainer" class="frames-container">
+          <p>Loading frames...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../app.js"></script>
+  <script>
+    AUTH.requireAuth();
+    UI.mountUserHeader('welcomeUser', 'logoutBtn');
+    
+    // Parse URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const category = urlParams.get('category');
+    const baseName = urlParams.get('baseName');
+    
+    // Display the parameters
+    document.getElementById('categoryValue').textContent = category || 'Not specified';
+    document.getElementById('baseNameValue').textContent = baseName || 'Not specified';
+    
+    // Construct video path and display it
+    if (category && baseName) {
+      // Add .mp4 extension if not present
+      const fileName = baseName.endsWith('.mp4') ? baseName : `${baseName}.mp4`;
+      const videoPath = `/dataset/Videos_v1/${category}/${fileName}`;
+      document.getElementById('videoPath').textContent = videoPath;
+      
+      // Set video source
+      const videoPlayer = document.getElementById('videoPlayer');
+      videoPlayer.src = videoPath;
+      
+      // Show video player when loaded
+      videoPlayer.addEventListener('loadeddata', function() {
+        document.getElementById('loadingMessage').style.display = 'none';
+        videoPlayer.style.display = 'block';
+        
+        // Adjust container size to fit video
+        setTimeout(() => {
+          const container = document.querySelector('.video-container');
+          const videoRect = videoPlayer.getBoundingClientRect();
+          container.style.height = videoRect.height + 'px';
+        }, 100);
+      });
+      
+      // Handle video loading errors
+      videoPlayer.addEventListener('error', function() {
+        document.getElementById('loadingMessage').textContent = 'Failed to load video';
+        document.getElementById('loadingMessage').style.color = 'var(--danger)';
+      });
+      
+      // Load frames
+      loadFrames(category, baseName);
+    } else {
+      document.getElementById('videoPath').textContent = 'Invalid video path';
+      document.getElementById('loadingMessage').textContent = 'Missing category or baseName parameters';
+      document.getElementById('loadingMessage').style.color = 'var(--danger)';
+      document.getElementById('framesContainer').innerHTML = '<p>Unable to load frames: Missing category or baseName parameters</p>';
+    }
+    
+    async function loadFrames(category, baseName) {
+      const framesContainer = document.getElementById('framesContainer');
+      
+      try {
+        // Fetch frames from the backend API
+        const response = await fetch(`/api/videos/frames?category=${encodeURIComponent(category)}&base_name=${encodeURIComponent(baseName)}`);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to load frames: ${response.status} ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        const frames = data.frames || [];
+        
+        if (frames.length === 0) {
+          framesContainer.innerHTML = '<p>No frames found for this video</p>';
+          return;
+        }
+        
+        // Sort frames by name to ensure proper order
+        frames.sort();
+        
+        // Clear container
+        framesContainer.innerHTML = '';
+        
+        // Create frame elements
+        frames.forEach((frameName, index) => {
+          // Extract frame number from frame name (e.g., frame_00012.jpg -> 12)
+          const frameNumberMatch = frameName.match(/frame_(\d+)\./);
+          const frameNumber = frameNumberMatch ? parseInt(frameNumberMatch[1], 10) : index;
+          
+          const framePath = `/dataset/Frames_v1/${category}/${baseName}/${frameName}`;
+          const frameElement = document.createElement('div');
+          frameElement.className = 'frame-item';
+          frameElement.innerHTML = `
+            <img src="${framePath}" alt="${frameName}" class="frame-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA4MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjMzAzOTQyIi8+CjxwYXRoIGQ9Ik0zNSA0Mkg0NVY0MEgzNVY0MlpNNDUgMzBIMzVWMjhINDVWMzBaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0zNSA0MEg0NVYzOEgzNVY0MFoiIGZpbGw9IiNBMkIwMkUiLz4KPHBhdGggZD0iTTM1IDM4SDQ1VjM2SDM1VjM4WiIgZmlsbD0iI0EyQjAyRSIvPgo8cGF0aCBkPSJNMzUgMzZINDVWMzRIMzVWMzZaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0zNSAzNEg0NVYzMkgzNVYzRaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0zNSAzMkg0NVYzMEgzNVYzMloiIGZpbGw9IiNBMkIwMkUiLz4KPHBhdGggZD0iTTM1IDMwSDQ1VjI4SDM1VjMwWiIgZmlsbD0iI0EyQjAyRSIvPgo8cGF0aCBkPSJNMzUgMjhINDVWMjZIMzVWMjhaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0zNSAyNkg0NVYyNEgzNVYyNloiIGZpbGw9IiNBMkIwMkUiLz4KPHBhdGggZD0iTTM1IDI0SDQ1VjIySDM1VjI0WiIgZmlsbD0iI0EyQjAyRSIvPgo8cGF0aCBkPSJNMzUgMjJINDVWMjBIMzVWMjJaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0zNSAyMEg0NVYxOEgzNVYyMFoiIGZpbGw9IiNBMkIwMkUiLz4KPHBhdGggZD0iTTM1IDE4SDQ1VjE2SDM1VjE4WiIgZmlsbD0iI0EyQjAyRSIvPgo8cGF0aCBkPSJNMzUgMTZINDVWMTQuMzVIMzVWMTZaIiBmaWxsPSIjQTJCMDJFIi8+Cjwvc3ZnPgo='">
+            <div class="frame-info">
+              <div class="frame-name">${frameName}</div>
+              <div class="frame-number">Frame #${frameNumber}</div>
+            </div>
+          `;
+          framesContainer.appendChild(frameElement);
+        });
+      } catch (error) {
+        console.error('Error loading frames:', error);
+        framesContainer.innerHTML = `<p>Error loading frames: ${error.message}</p>`;
+      }
+    }
+  </script>
+</body>
+</html>

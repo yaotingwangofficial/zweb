@@ -149,10 +149,10 @@
 
   function buildTargetHtmlPath(category, baseName) {
     // 当前页：/SVTrack/dataset/website/frontend/task_instance.html
-    // 目标：  /SVTrack/dataset/website/frontend/task_instance/<category>/<baseName>.html
+    // 目标：  /SVTrack/dataset/website/frontend/task_instance/annotate.html?category=<category>&basename=<baseName>.html
     const current = window.location.pathname.replace(/\\/g, '/');
     const frontendRoot = current.replace(/\/task_instance\.html$/, '');
-    return `${frontendRoot}/task_instance/${encodeURIComponent(category)}/${encodeURIComponent(baseName)}.html`;
+    return `${frontendRoot}/task_instance/annotate.html?category=${encodeURIComponent(category)}&baseName=${encodeURIComponent(baseName)}`;
   }
 
   function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
