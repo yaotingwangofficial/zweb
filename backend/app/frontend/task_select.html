@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>Data Labeling | 选择任务</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="./styles.css" rel="stylesheet" />
+</head>
+<body class="page">
+  <header class="topbar">
+    <div class="brand">标注平台</div>
+    <div class="userbox">
+      <span id="welcomeUser"></span>
+      <button class="btn btn--ghost" id="logoutBtn">退出</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1 class="title">选择你的任务</h1>
+
+    <section class="grid">
+      <a class="tile" href="task_instance.html">
+        <h2>Instance Segmentation</h2>
+      </a>
+
+      <a class="tile" href="reference.html">
+        <h2>Reference Segmentation</h2>
+      </a>
+
+      <a class="tile" href="scene.html">
+        <h2>Scene Understanding</h2>
+      </a>
+
+      <a class="tile tile--accent" href="my_task.html">
+        <h2>My Task</h2>
+      </a>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+  <script>
+    // 受限页守卫
+    AUTH.requireAuth();
+    // 欢迎语与退出
+    UI.mountUserHeader('welcomeUser', 'logoutBtn');
+  </script>
+</body>
+</html>

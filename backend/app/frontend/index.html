@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>Data Labeling | 登录</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="/frontend/styles.css" rel="stylesheet" />
+</head>
+<body class="page page--center">
+  <main class="card card--auth" role="main" aria-labelledby="login-title">
+    <h1 id="login-title" class="title">登录到标注平台</h1>
+
+    <form id="loginForm" class="form" autocomplete="on" novalidate>
+      <label class="label">
+        <span>用户名</span>
+        <input id="username" name="username" class="input" type="text" required placeholder="例如：alice" />
+      </label>
+
+      <label class="label">
+        <span>密码</span>
+        <input id="password" name="password" class="input" type="password" required placeholder="至少 4 位" />
+      </label>
+
+      <button type="submit" class="btn btn--primary">登录</button>
+      <p id="loginError" class="error" aria-live="polite" hidden></p>
+    </form>
+  </main>
+
+  <script src="/frontend/app.js"></script>
+  <script>
+    // 登录提交
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const u = document.getElementById('username').value.trim();
+      const p = document.getElementById('password').value;
+
+      const err = document.getElementById('loginError');
+      err.hidden = true; err.textContent = '';
+
+      // 简单校验：非空 & 密码长度 >= 4（你可以改成真实后端校验）
+      if (!u || !p) {
+        err.textContent = '请输入用户名和密码。';
+        err.hidden = false;
+        return;
+      }
+      if (p.length < 4) {
+        err.textContent = '密码至少 4 位。';
+        err.hidden = false;
+        return;
+      }
+
+      // 模拟登录成功，写入 localStorage
+      AUTH.login(u);
+      window.location.href = '/frontend/task_select.html';
+    });
+  </script>
+</body>
+</html>

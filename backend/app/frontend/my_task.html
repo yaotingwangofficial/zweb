@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>My Task | 标注平台</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="./styles.css" rel="stylesheet" />
+</head>
+<body class="page">
+  <header class="topbar">
+    <div class="brand"><a href="task_select.html" class="brand__link">← 返回任务</a></div>
+    <div class="userbox">
+      <span id="welcomeUser"></span>
+      <button class="btn btn--ghost" id="logoutBtn">退出</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1 class="title">我的任务</h1>
+    <p class="muted">这里展示你被分配的任务与进度（当前为静态示例，可对接后端 API）。</p>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>任务ID</th>
+            <th>类型</th>
+            <th>进度</th>
+            <th>最后更新时间</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="taskRows">
+          <!-- 示例数据（可改为动态渲染） -->
+          <tr>
+            <td>#1001</td>
+            <td>Instance Segmentation</td>
+            <td>40%</td>
+            <td>2025-09-10 14:23</td>
+            <td><a class="link" href="instance.html">继续</a></td>
+          </tr>
+          <tr>
+            <td>#1002</td>
+            <td>Reference Segmentation</td>
+            <td>72%</td>
+            <td>2025-09-12 09:51</td>
+            <td><a class="link" href="reference.html">继续</a></td>
+          </tr>
+          <tr>
+            <td>#1003</td>
+            <td>Scene Understanding</td>
+            <td>15%</td>
+            <td>2025-09-15 18:05</td>
+            <td><a class="link" href="scene.html">继续</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script src="./app.js"></script>
+  <script>
+    AUTH.requireAuth();
+    UI.mountUserHeader('welcomeUser', 'logoutBtn');
+  </script>
+</body>
+</html>

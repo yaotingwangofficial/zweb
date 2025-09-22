@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>Instance Segmentation | 任务列表</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="./styles.css" rel="stylesheet" />
+</head>
+<body class="page">
+  <header class="topbar">
+    <div class="brand"><a href="tasks.html" class="brand__link">← 返回任务</a></div>
+    <div class="userbox">
+      <span id="welcomeUser"></span>
+      <button class="btn btn--ghost" id="logoutBtn">退出</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1 class="title">Instance Segmentation · 任务列表</h1>
+    <p class="muted">每页显示 10 个视频。点击「开始」进入该数据标注页面。</p>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="width:110px;">操作</th>
+            <th style="width:80px;">#</th>
+            <th>视频名称（来自 Videos_v1）</th>
+          </tr>
+        </thead>
+        <tbody id="listBody">
+          <!-- 动态渲染 -->
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pager" id="pager" aria-live="polite">
+      <div class="group">
+        <button class="btn btn--ghost" id="prevBtn">上一页</button>
+        <button class="btn btn--ghost" id="nextBtn">下一页</button>
+      </div>
+      <div class="group">
+        <span>第 <strong id="pageNow">1</strong> / <strong id="pageTotal">1</strong> 页</span>
+        <span class="muted">| 本页范围 <span id="rangeText">—</span> / 共 <span id="totalCount">0</span> 条</span>
+      </div>
+      <form id="jumpForm" class="group" title="跳转到指定页">
+        <label class="label" style="margin:0;">
+          <span class="muted">跳转到</span>
+          <input id="jumpInput" class="input input--num" type="number" min="1" step="1" />
+        </label>
+        <button class="btn">GO</button>
+      </form>
+    </div>
+
+    <p id="errorBox" class="error" hidden></p>
+  </main>
+
+  <script src="./app.js"></script>
+  <script src="./task_instance.js"></script>
+  <script>
+    AUTH.requireAuth();
+    UI.mountUserHeader('welcomeUser', 'logoutBtn');
+  </script>
+</body>
+</html>
