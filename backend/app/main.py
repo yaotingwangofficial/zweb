@@ -5,6 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from app.config import settings
 from app.routers.videos import router as videos_router
+from app.routers.auth import router as auth_router
 
 app = FastAPI(title="Annotation Backend")
 
@@ -45,6 +46,8 @@ async def health():
 
 # 注册视频路由
 app.include_router(videos_router)
+app.include_router(auth_router) 
+
 
 
 # ssh 10.0.0.43                                            
