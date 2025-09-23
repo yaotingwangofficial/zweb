@@ -94,6 +94,38 @@ def list_masks(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.get("/audios")
+def list_audios(
+    category: str = Query(..., description="视频类别"),
+    base_name: str = Query(..., description="视频基础名称")
+):
+    """
+    获取指定视频的指定帧的所有音频文件
+    """
+    # Build audio directory path
+    audios_dir = settings.AUDIOS_ROOT / category / base_name
+    
+    # Check if directory exists
+    if not audios_dir.exists():
+        raise HTTPException(status_code=404, detail=f"Audios directory not found: {audios_dir}")
+    
+    try:
+        # Get all audio files in the directory
+        audio_files = [
+            f.name for f in audios_dir.iterdir() 
+            if f.is_file() and f.name.lower().endswith(('.mp3', '.wav', '.ogg', '.aac', '.flac'))
+        ]
+        
+        if not audio_files:
+            raise HTTPException(status_code=404, detail="No audio files found for this frame")
+        
+        # Sort files by name to ensure consistent order
+        audio_files.sort()
+        
+        return {"audios": audio_files}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # 保存人工检查结果
 @router.post("/save-human-check")

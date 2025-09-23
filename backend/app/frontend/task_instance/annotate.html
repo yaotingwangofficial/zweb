@@ -325,7 +325,7 @@
           frameElement.innerHTML = `
             <div class="frame-info">
               <img src="${framePath}" alt="${frameName}" class="frame-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA4MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjMzAzOTQyIi8+CjxwYXRoIGQ9Ik0zNSA0Mkg0NVY0MEgzNVY0MlpNNDUgMzBIMzVWMjhINDVWMzBaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0zNSA0MEg0NVYzOEgzNVY0MFoiIGZpbGw9IiNBMkIwMkUiLz4KPHBhdGggZD0iTTM1IDM4SDQ1VjM2SDM1VjM4WiIgZmlsbD0iI0EyQjAyRSIvPgo8cGF0aCBkPSJNMzUgMzZINDVWMzRIMzVWMzZaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0zNSAzNEg0NVYzMkgzNVYzRaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0zNSAzMkg0NVYzMEgzNVYzMloiIGZpbGw9IiNBMkIwMkUiLz4KPHBhdGggZD0iTTM1IDMwSDQ1VjI4SDM1VjMwWiIgZmlsbD0iI0EyQjAyRSIvPgo8cGF0aCBkPSJNMzUgMjhINDVWMjZIMzVWMjhaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0zNSAyNkg0NVYyNEgzNVYyNloiIGZpbGw9IiNBMkIwMkUiLz4KPHBhdGggZD0iTTM1IDI0SDQ1VjIySDM1VjI0WiIgZmlsbD0iI0EyQjAyRSIvPgo8cGF0aCBkPSJNMzUgMjJINDVWMjBIMzVWMjJaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0zNSAyMEg0NVYxOEgzNVYyMFoiIGZpbGw9IiNBMkIwMkUiLz4KPHBhdGggZD0iTTM1IDE4SDQ1VjE2SDM1VjE4WiIgZmlsbD0iI0EyQjAyRSIvPgo8cGF0aCBkPSJNMzUgMTZINDVWMTQuMzVIMzVWMTZaIiBmaWxsPSIjQTJCMDJFIi8+Cjwvc3ZnPgo='">
-              
+            
               <div class="frame-name" style="font-size: 0.5rem; margin-bottom: 4px;">${frameName}</div>
               <div class="frame-input">
                 <input type="text" class="frame-input-field" placeholder="Add notes or additional information..." 
@@ -338,6 +338,7 @@
 
           // Load masks for this frame
           loadMasks(category, baseName, frameName, frameNumber);
+          loadAudios(category, baseName, frameName, frameNumber);
         });
 
       } catch (error) {
@@ -345,7 +346,6 @@
         framesContainer.innerHTML = `<p>Error loading frames: ${error.message}</p>`;
       }
     }
-
 
     async function loadMasks(category, baseName, frameName, frameNumber) {
       const masksContainer = document.getElementById(`masks-${frameNumber}`);
@@ -398,6 +398,43 @@
         masksContainer.innerHTML = `<p class="muted">Error loading masks: ${error.message}</p>`;
       }
     }
+
+    async function loadAudios(category, baseName, frameName, frameNumber) {
+  const frameElement = document.querySelector(`.frame-item:nth-child(${frameNumber + 1})`);
+  
+  try {
+    // Extract frame number from frame name (e.g., frame_00001.jpg -> 00001)
+    const frameNumMatch = frameName.match(/frame_(\d+)\./);
+    const frameNum = frameNumMatch ? frameNumMatch[1] : '00000';
+    
+    // Construct the audio file name based on your pattern
+    // frame_00001.jpg -> audio_00001.wav
+    const audioFileName = `audio_${frameNum}.wav`;
+    const audioPath = `/dataset/Audios_v1/${category}/${baseName}/${audioFileName}`;
+    
+    // Check if audio file exists by making a HEAD request
+    const headResponse = await fetch(audioPath, { method: 'HEAD' });
+    
+    if (headResponse.ok) {
+      // Find the frame-info div within this frame element
+      const frameInfo = frameElement.querySelector('.frame-info');
+      
+      // Create audio element
+      const audioElement = document.createElement('audio');
+      audioElement.controls = true;
+      audioElement.className = 'frame-audio';
+      audioElement.innerHTML = `<source src="${audioPath}" type="audio/wav">Your browser does not support the audio element.`;
+      
+      // Insert the audio element after the frame image
+      const frameImage = frameInfo.querySelector('.frame-image');
+      frameImage.insertAdjacentElement('afterend', audioElement);
+    } else {
+      console.log(`Audio file not found: ${audioPath}`);
+    }
+  } catch (error) {
+    console.error('Error loading audio:', error);
+  }
+}
 
     function toggleCheckbox(element, type) {
       // Remove any existing checkmark
