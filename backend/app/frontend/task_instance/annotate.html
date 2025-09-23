@@ -328,7 +328,7 @@
             
               <div class="frame-name" style="font-size: 0.5rem; margin-bottom: 4px;">${frameName}</div>
               <div class="frame-input">
-                <input type="text" class="frame-input-field" placeholder="Add notes or additional information..." 
+                <input type="text" class="frame-input-field" placeholder="missed instance" 
                       onkeypress="handleInputKeyPress(event, '${frameNumber}')">
               </div>
               <div class="masks-container" id="masks-${frameNumber}"></div>
@@ -382,15 +382,15 @@
           const maskElement = document.createElement('div');
           maskElement.className = 'mask-item';
           maskElement.innerHTML = `
-                <img src="${maskPath}" alt="${mask}" class="mask-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNDUiIHZpZXdCb3g9IjAgMCA2MCA0NSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjQ1IiBmaWxsPSIjMzAzOTQyIi8+CjxwYXRoIGQ9Ik0yMCAyNUgzMFYyM0gyMFYyNVpNMzAgMTVIMjBWMTNIMzBWMTVaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0yMCAyM0gzMFYyMUgyMFYyM1oiIGZpbGw9IiNBMkIwMkUiLz4KPHBhdGggZD0iTTIwIDIxSDMwVjE5SDIwVjIxWiIgZmlsbD0iI0EyQjAyRSIvPgo8cGF0aCBkPSJNMjAgMTlIMzBWMTdIMjBWMTlaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0yMCAxN0gzMFYxNUgyMFYxN1oiIGZpbGw9IiNBMkIwMkUiLz4KPHBhdGggZD0iTTIwIDE1SDMwVjEzSDIwVjE1WiIgZmlsbD0iI0EyQjAyRSIvPgo8cGF0aCBkPSJNMjAgMTNIMzBWMTFIMjBWMTNaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0yMCAxMUgzMFY5SDIwVjExWiIgZmlsbD0iI0EyQjAyRSIvPgo8cGF0aCBkPSJNMjAgOUgzMFY3SDIwVjlaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0yMCA3SDMwVjVIMjBWNVoiIGZpbGw9IiNBMkIwMkUiLz4KPHBhdGggZD0iTTIwIDVIMzBWNEgyMFY1WiIgZmlsbD0iI0EyQjAyRSIvPgo8L3N2Zz4K'">
-                <div class="mask-info">
-                    <div class="mask-name">${mask}</div>
-                </div>
-                <div class="checkbox-container">
-                    <div class="checkbox-green" onclick="toggleCheckbox(this, 'green')"></div>
-                    <div class="checkbox-red" onclick="toggleCheckbox(this, 'red')"></div>
-                </div>
-            `;
+            <img src="${maskPath}" alt="${mask}" class="mask-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNj'">
+            <div class="mask-info">
+              <div class="mask-name">${mask}</div>
+            </div>
+            <div class="checkbox-container">
+              <div class="checkbox-green" onclick="toggleCheckbox(this, 'green')"></div>
+              <div class="checkbox-red" onclick="toggleCheckbox(this, 'red')"></div>
+            </div>
+          `;
           masksContainer.appendChild(maskElement);
         });
       } catch (error) {

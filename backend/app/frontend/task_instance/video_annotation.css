@@ -73,8 +73,8 @@
 }
 
 .frame-image {
-    width: 80px;
-    height: 60px;
+    width: 180px;
+    /* height: 60px; */
     object-fit: cover;
     border-radius: 4px;
     margin-right: 12px;
@@ -92,14 +92,20 @@
 
 .masks-container {
     margin-top: 10px;
-    padding-left: 20px;
+    padding-left: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .mask-item {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    padding: 6px 0;
-    border-bottom: 1px dashed #223042;
+    padding: 6px;
+    border: 1px dashed #223042;
+    border-radius: 5px;
+    min-width: 60px;
 }
 
 .mask-item:last-child {
@@ -107,26 +113,32 @@
 }
 
 .mask-image {
-    width: 60px;
-    height: 45px;
+    width: 180px;
+    /* height: 45px; */
     object-fit: cover;
     border-radius: 3px;
-    margin-right: 10px;
+    margin-bottom: 5px;
 }
 
 .mask-info {
-    flex: 1;
+    text-align: center;
+    margin-bottom: 5px;
 }
 
 .mask-name {
-    font-size: 0.85rem;
+    font-size: 0.7rem;
     margin-bottom: 2px;
+    text-align: center;
+    word-break: break-word;
+    max-width: 100%;
 }
+
 
 .checkbox-container {
     display: flex;
-    gap: 8px;
-    margin-left: 10px;
+    gap: 5px;
+    justify-content: center;
+    width: 100%;
 }
 
 .checkbox-green, .checkbox-red {
@@ -139,6 +151,7 @@
     justify-content: center;
     font-weight: bold;
     color: white;
+    font-size: 12px;
 }
 
 .checkbox-green {
