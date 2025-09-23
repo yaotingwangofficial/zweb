@@ -200,6 +200,8 @@
                 } else {
                   alert(`Annotations saved successfully to server!\n${result.message || ''}`);
                 }
+
+                window.location.href = '../task_instance.html';
               })
               .catch(error => {
                 console.error('Error saving annotations:', error);

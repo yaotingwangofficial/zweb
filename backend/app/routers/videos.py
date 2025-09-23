@@ -161,7 +161,7 @@ async def save_human_check(request: Request):
             save_directory = "/home/share/wangyt/zweb/dataset/HumanCheck_v1"
             os.makedirs(save_directory, exist_ok=True)
             
-            file_name = f"{category}_{base_name}_annotations.json"
+            file_name = f"{category}+{base_name}.json"
             file_path = os.path.join(save_directory, file_name)
             
             # Save the annotation data (the nested object)
@@ -219,3 +219,42 @@ async def save_human_check(request: Request):
             status_code=500,
             detail=f"Unexpected error: {str(e)}"
         )
+
+
+HUMAN_CHECK_DIR = '/home/share/wangyt/zweb/dataset/HumanCheck_v1'
+
+@router.get("/check-annotation-exists")
+def check_annotation_exists(file: str = Query(..., description="Annotation file name to check")):
+    """
+    Check if an annotation file already exists
+    """
+    try:
+        if not file:
+            return {"exists": False}
+        
+        # Make sure the directory exists
+        if not os.path.exists(HUMAN_CHECK_DIR):
+            logging.warning(f"HumanCheck directory does not exist: {HUMAN_CHECK_DIR}")
+            return {"exists": False}
+            
+        file_path = os.path.join(HUMAN_CHECK_DIR, file)
+        
+        # Log the exact path we're checking for debugging
+        logging.info(f"Checking for annotation file: {file_path}")
+        logging.info(f"File parameter received: {file}")
+        
+        # Check if file exists
+        exists = os.path.exists(file_path)
+        
+        # If it doesn't exist, list files in directory for debugging
+        if not exists:
+            try:
+                files_in_dir = os.listdir(HUMAN_CHECK_DIR)
+                logging.info(f"Files in directory: {files_in_dir[:10]}")  # Show first 10 files
+            except Exception as e:
+                logging.error(f"Error listing directory contents: {e}")
+        
+        return {"exists": exists, "checked_path": file_path}
+    except Exception as e:
+        logging.error(f"Error checking annotation file: {e}")
+        return {"exists": False, "error": str(e)}
