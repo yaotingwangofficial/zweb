@@ -30,6 +30,8 @@ app.mount("/frontend", StaticFiles(directory="app/frontend"), name="frontend")
 # Mount the dataset directory to serve video files
 app.mount("/dataset", StaticFiles(directory="../dataset"), name="dataset")
 
+app.mount("/masks", StaticFiles(directory="/home/share/wangyt/zweb/dataset/PseudoMasks_v1", html=False), name="masks")
+
 
 # 将根路径指向 index.html
 @app.get("/")

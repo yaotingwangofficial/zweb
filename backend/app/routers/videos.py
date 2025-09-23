@@ -59,3 +59,36 @@ def list_frames(
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# 新增：获取视频帧对应的 mask 列表
+@router.get("/masks")
+def list_masks(
+    category: str = Query(..., description="视频类别"),
+    base_name: str = Query(..., description="视频基础名称"),
+    frame_number: str = Query(..., description="帧编号"),
+):
+    """
+    获取指定视频的指定帧的所有 mask
+    """
+    # 构建 mask 目录路径
+    masks_dir = settings.PSEUDOMASK_ROOT / category / base_name / f"frame_{frame_number}"
+    
+    # 检查目录是否存在
+    if not masks_dir.exists():
+        raise HTTPException(status_code=404, detail=f"Masks directory not found: {masks_dir}")
+    
+    try:
+        # 获取该目录下所有图片文件
+        mask_files = [f.name for f in masks_dir.iterdir() if f.is_file() and f.name.lower().endswith(('.jpg', '.jpeg', '.png'))]
+        
+        if not mask_files:
+            raise HTTPException(status_code=404, detail="No masks found for this frame")
+        
+        # 按文件名排序以确保顺序正确
+        mask_files.sort()
+        
+        return {"masks": mask_files}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

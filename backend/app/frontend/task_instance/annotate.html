@@ -36,7 +36,7 @@
     <div class="main-content">
       <h1 class="title">Video Annotation</h1>
       
-      <div class="panel task-info-panel">
+      <!-- <div class="panel task-info-panel">
         <h2>Annotation Tools</h2>
         <p class="muted">Here will be the annotation tools</p>
         <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
@@ -45,11 +45,11 @@
           <button class="btn">Mask</button>
           <button class="btn btn--primary">Save</button>
         </div>
-      </div>
+      </div> -->
       
       <div class="panel">
         <h2>Annotation Workspace</h2>
-        <p class="muted">This is where the main annotation work will happen</p>
+        <!-- <p class="muted">This is where the main annotation work will happen</p> -->
         <div id="framesContainer" class="frames-container">
           <p>Loading frames...</p>
         </div>
@@ -157,58 +157,68 @@
           // Load masks for this frame
           loadMasks(category, baseName, frameName, frameNumber);
         });
+      
       } catch (error) {
         console.error('Error loading frames:', error);
         framesContainer.innerHTML = `<p>Error loading frames: ${error.message}</p>`;
       }
     }
     
+
     async function loadMasks(category, baseName, frameName, frameNumber) {
-      const masksContainer = document.getElementById(`masks-${frameNumber}`);
-      
-      try {
+    const masksContainer = document.getElementById(`masks-${frameNumber}`);
+    
+    try {
         // Extract frame number from frame name (e.g., frame_00012.jpg -> 12)
         const frameNumMatch = frameName.match(/frame_(\d+)\./);
         const frameNum = frameNumMatch ? frameNumMatch[1] : '0';
         
-        // Construct mask directory path
-        const maskDirPath = `/dataset/PseudoMask_v1/${category}/${baseName}/frame_${parseInt(frameNum)}`;
+        // Construct API URL with correct parameter names
+        const apiUrl = `/api/videos/masks?category=${encodeURIComponent(category)}&base_name=${encodeURIComponent(baseName)}&frame_number=${encodeURIComponent(frameNum)}`;
         
-        // In a real implementation, you would fetch the list of masks from the server
-        // For now, we'll simulate with sample data
-        const sampleMasks = [
-          { name: 'instant_0.jpg' },
-          { name: 'instant_1.jpg' }
-        ];
+        // Fetch the list of masks from the server
+        const response = await fetch(apiUrl);
         
-        if (sampleMasks.length === 0) {
-          masksContainer.innerHTML = '<p class="muted">No masks available</p>';
-          return;
+        if (!response.ok) {
+            throw new Error(`Failed to load masks: ${response.status} ${response.statusText}`);
+        }
+        
+        // Parse the response as JSON
+        const data = await response.json();
+        const masks = data.masks || [];
+        
+        if (masks.length === 0) {
+            masksContainer.innerHTML = '<p class="muted">No masks available</p>';
+            return;
         }
         
         // Create mask elements
-        sampleMasks.forEach(mask => {
-          const maskPath = `${maskDirPath}/${mask.name}`;
-          const maskElement = document.createElement('div');
-          maskElement.className = 'mask-item';
-          maskElement.innerHTML = `
-            <img src="${maskPath}" alt="${mask.name}" class="mask-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNDUiIHZpZXdCb3g9IjAgMCA2MCA0NSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjQ1IiBmaWxsPSIjMzAzOTQyIi8+CjxwYXRoIGQ9Ik0yMCAyNUgzMFYyM0gyMFYyNVpNMzAgMTVIMjBWMTNIMzBWMTVaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0yMCAyM0gzMFYyMUgyMFYyM1oiIGZpbGw9IiNBMkIwMkUiLz4KPHBhdGggZD0iTTIwIDIxSDMwVjE5SDIwVjIxWiIgZmlsbD0iI0EyQjAyRSIvPgo8cGF0aCBkPSJNMjAgMTlIMzBWMTdIMjBWMTlaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0yMCAxN0gzMFYxNUgyMFYxN1oiIGZpbGw9IiNBMkIwMkUiLz4KPHBhdGggZD0iTTIwIDE1SDMwVjEzSDIwVjE1WiIgZmlsbD0iI0EyQjAyRSIvPgo8cGF0aCBkPSJNMjAgMTNIMzBWMTFIMjBWMTNaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0yMCAxMUgzMFY5SDIwVjExWiIgZmlsbD0iI0EyQjAyRSIvPgo8cGF0aCBkPSJNMjAgOUgzMFY3SDIwVjlaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0yMCA3SDMwVjVIMjBWNVoiIGZpbGw9IiNBMkIwMkUiLz4KPHBhdGggZD0iTTIwIDVIMzBWNEgyMFY1WiIgZmlsbD0iI0EyQjAyRSIvPgo8L3N2Zz4K'">
-            <div class="mask-info">
-              <div class="mask-name">${mask.name}</div>
-            </div>
-            <div class="checkbox-container">
-              <div class="checkbox-green" onclick="toggleCheckbox(this, 'green')"></div>
-              <div class="checkbox-red" onclick="toggleCheckbox(this, 'red')"></div>
-            </div>
-          `;
-          masksContainer.appendChild(maskElement);
+        masks.forEach(mask => {
+            const maskPath = `/masks/${category}/${baseName}/frame_${frameNum}/${mask}`;
+            console.log('Mask path:', maskPath);  // 这里是调试输出
+
+            const maskElement = document.createElement('div');
+            maskElement.className = 'mask-item';
+            maskElement.innerHTML = `
+                <img src="${maskPath}" alt="${mask}" class="mask-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNDUiIHZpZXdCb3g9IjAgMCA2MCA0NSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjQ1IiBmaWxsPSIjMzAzOTQyIi8+CjxwYXRoIGQ9Ik0yMCAyNUgzMFYyM0gyMFYyNVpNMzAgMTVIMjBWMTNIMzBWMTVaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0yMCAyM0gzMFYyMUgyMFYyM1oiIGZpbGw9IiNBMkIwMkUiLz4KPHBhdGggZD0iTTIwIDIxSDMwVjE5SDIwVjIxWiIgZmlsbD0iI0EyQjAyRSIvPgo8cGF0aCBkPSJNMjAgMTlIMzBWMTdIMjBWMTlaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0yMCAxN0gzMFYxNUgyMFYxN1oiIGZpbGw9IiNBMkIwMkUiLz4KPHBhdGggZD0iTTIwIDE1SDMwVjEzSDIwVjE1WiIgZmlsbD0iI0EyQjAyRSIvPgo8cGF0aCBkPSJNMjAgMTNIMzBWMTFIMjBWMTNaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0yMCAxMUgzMFY5SDIwVjExWiIgZmlsbD0iI0EyQjAyRSIvPgo8cGF0aCBkPSJNMjAgOUgzMFY3SDIwVjlaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0yMCA3SDMwVjVIMjBWNVoiIGZpbGw9IiNBMkIwMkUiLz4KPHBhdGggZD0iTTIwIDVIMzBWNEgyMFY1WiIgZmlsbD0iI0EyQjAyRSIvPgo8L3N2Zz4K'">
+                <div class="mask-info">
+                    <div class="mask-name">${mask}</div>
+                </div>
+                <div class="checkbox-container">
+                    <div class="checkbox-green" onclick="toggleCheckbox(this, 'green')"></div>
+                    <div class="checkbox-red" onclick="toggleCheckbox(this, 'red')"></div>
+                </div>
+            `;
+            masksContainer.appendChild(maskElement);
         });
-      } catch (error) {
+    } catch (error) {
         console.error('Error loading masks:', error);
         masksContainer.innerHTML = `<p class="muted">Error loading masks: ${error.message}</p>`;
-      }
     }
-    
+}
+
+
+
     function toggleCheckbox(element, type) {
       // Remove any existing checkmark
       const existingCheck = element.querySelector('.checkbox-checked');
