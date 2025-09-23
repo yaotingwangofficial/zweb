@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="zh-CN">
+
 <head>
   <meta charset="utf-8" />
   <title>Annotation Page</title>
@@ -8,6 +9,7 @@
   <link href="video_annotation.css" rel="stylesheet" />
 
 </head>
+
 <body class="page">
   <header class="topbar">
     <div class="brand"><a href="../task_instance.html" class="brand__link">← 返回任务列表</a></div>
@@ -32,10 +34,10 @@
         <p><strong>Video Path:</strong> <span id="videoPath">-</span></p>
       </div>
     </div>
-    
+
     <div class="main-content">
       <h1 class="title">Video Annotation</h1>
-    
+
       <div class="panel">
         <h2>Annotation Workspace</h2>
         <!-- <p class="muted">This is where the main annotation work will happen</p> -->
@@ -44,185 +46,189 @@
         </div>
 
         <!-- Add this modal dialog for previewing data before saving -->
-      <div id="previewModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
-        <div style="background: #0e141b; border: 1px solid var(--border); border-radius: 10px; width: 80%; max-width: 800px; max-height: 80vh; overflow-y: auto;">
-          <div style="padding: 20px;">
-            <h2 style="margin-top: 0;">Preview Annotations</h2>
-            <pre id="previewData" style="background: #0a0f15; padding: 15px; border-radius: 5px; overflow-x: auto; white-space: pre-wrap;"></pre>
-            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-              <button class="btn" onclick="closePreview()">Cancel</button>
-              <button class="btn btn--primary" onclick="confirmSave()">Save</button>
+        <div id="previewModal"
+          style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+          <div
+            style="background: #0e141b; border: 1px solid var(--border); border-radius: 10px; width: 80%; max-width: 800px; max-height: 80vh; overflow-y: auto;">
+            <div style="padding: 20px;">
+              <h2 style="margin-top: 0;">Preview Annotations</h2>
+              <pre id="previewData"
+                style="background: #0a0f15; padding: 15px; border-radius: 5px; overflow-x: auto; white-space: pre-wrap;"></pre>
+              <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                <button class="btn" onclick="closePreview()">Cancel</button>
+                <button class="btn btn--primary" onclick="confirmSave()">Save</button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Update the save button to call the new preview function -->
-      <div class="panel" style="margin-top: 16px; text-align: center;">
-        <button class="btn btn--primary" id="saveAnnotationsBtn" onclick="previewAnnotations()">Save Annotations</button>
-      </div>
+        <!-- Update the save button to call the new preview function -->
+        <div class="panel" style="margin-top: 16px; text-align: center;">
+          <button class="btn btn--primary" id="saveAnnotationsBtn" onclick="previewAnnotations()">Save
+            Annotations</button>
+        </div>
 
-      <script>
-      // Add this function to preview annotations before saving
-      function previewAnnotations() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const category = urlParams.get('category');
-        const baseName = urlParams.get('baseName');
-        
-        // Collect all frame data
-        const frameItems = document.querySelectorAll('.frame-item');
-        const annotations = [];
-        
-        frameItems.forEach((frameItem, index) => {
-          const frameNameElement = frameItem.querySelector('.frame-name');
-          const frameName = frameNameElement ? frameNameElement.textContent : `Frame ${index}`;
-          
-          // Get text input value
-          const inputField = frameItem.querySelector('.frame-input-field');
-          const inputValue = inputField ? inputField.value : '';
-          
-          // Get masks and their checkbox states
-          const masksContainer = frameItem.querySelector('.masks-container');
-          const masksData = [];
-          
-          if (masksContainer) {
-            const maskItems = masksContainer.querySelectorAll('.mask-item');
-            maskItems.forEach(maskItem => {
-              const maskNameElement = maskItem.querySelector('.mask-name');
-              const maskName = maskNameElement ? maskNameElement.textContent : 'Unknown mask';
-              
-              const greenCheckbox = maskItem.querySelector('.checkbox-green');
-              const redCheckbox = maskItem.querySelector('.checkbox-red');
-              
-              const isGreenChecked = greenCheckbox && greenCheckbox.querySelector('.checkbox-checked') !== null;
-              const isRedChecked = redCheckbox && redCheckbox.querySelector('.checkbox-checked') !== null;
-              
-              masksData.push({
-                maskName: maskName,
-                greenChecked: isGreenChecked,
-                redChecked: isRedChecked
+        <script>
+          // Add this function to preview annotations before saving
+          function previewAnnotations() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const category = urlParams.get('category');
+            const baseName = urlParams.get('baseName');
+
+            // Collect all frame data
+            const frameItems = document.querySelectorAll('.frame-item');
+            const annotations = [];
+
+            frameItems.forEach((frameItem, index) => {
+              const frameNameElement = frameItem.querySelector('.frame-name');
+              const frameName = frameNameElement ? frameNameElement.textContent : `Frame ${index}`;
+
+              // Get text input value
+              const inputField = frameItem.querySelector('.frame-input-field');
+              const inputValue = inputField ? inputField.value : '';
+
+              // Get masks and their checkbox states
+              const masksContainer = frameItem.querySelector('.masks-container');
+              const masksData = [];
+
+              if (masksContainer) {
+                const maskItems = masksContainer.querySelectorAll('.mask-item');
+                maskItems.forEach(maskItem => {
+                  const maskNameElement = maskItem.querySelector('.mask-name');
+                  const maskName = maskNameElement ? maskNameElement.textContent : 'Unknown mask';
+
+                  const greenCheckbox = maskItem.querySelector('.checkbox-green');
+                  const redCheckbox = maskItem.querySelector('.checkbox-red');
+
+                  const isGreenChecked = greenCheckbox && greenCheckbox.querySelector('.checkbox-checked') !== null;
+                  const isRedChecked = redCheckbox && redCheckbox.querySelector('.checkbox-checked') !== null;
+
+                  masksData.push({
+                    maskName: maskName,
+                    greenChecked: isGreenChecked,
+                    redChecked: isRedChecked
+                  });
+                });
+              }
+
+              annotations.push({
+                frameName: frameName,
+                textInput: inputValue,
+                masks: masksData
               });
             });
-          }
-          
-          annotations.push({
-            frameName: frameName,
-            textInput: inputValue,
-            masks: masksData
-          });
-        });
-        
-        // Create data object to display
-        const previewData = {
-          category: category,
-          baseName: baseName,
-          annotations: annotations
-        };
-        
-        // Display in modal
-        document.getElementById('previewData').textContent = JSON.stringify(previewData, null, 2);
-        document.getElementById('previewModal').style.display = 'flex';
-      }
 
-      // Add function to close preview modal
-      function closePreview() {
-        document.getElementById('previewModal').style.display = 'none';
-      }
+            // Create data object to display
+            const previewData = {
+              category: category,
+              baseName: baseName,
+              annotations: annotations
+            };
 
-      // Add function to confirm and save
-      function confirmSave() {
-        // Get the preview data
-        const previewData = document.getElementById('previewData').textContent;
-        
-        // Get category and baseName from URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const category = urlParams.get('category');
-        const baseName = urlParams.get('baseName');
-        
-        // Close the preview modal
-        closePreview();
-        
-        // Send data to server for saving
-        fetch('/api/videos/save-human-check', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            category: category,
-            baseName: baseName,
-            data: JSON.parse(previewData)
-          })
-        })
-        .then(response => {
-          if (response.ok) {
-            return response.json();
-          } else {
-            throw new Error('Failed to save file on server');
+            // Display in modal
+            document.getElementById('previewData').textContent = JSON.stringify(previewData, null, 2);
+            document.getElementById('previewModal').style.display = 'flex';
           }
-        })
-        .then(result => {
-          alert('Annotations saved successfully to server!');
-        })
-        .catch(error => {
-          console.error('Error saving annotations:', error);
-          alert('Error saving annotations to server. Please try again.');
-        });
-      }
 
-      // Keep the original saveAnnotations function for actual implementation
-      function saveAnnotations() {
-        // Collect all frame input data
-        const frameInputs = document.querySelectorAll('.frame-input-field');
-        const inputData = {};
-        
-        frameInputs.forEach((input, index) => {
-          inputData[`frame_${index}`] = input.value;
-        });
-        
-        // Collect all checkbox data
-        const checkboxes = document.querySelectorAll('.checkbox-green, .checkbox-red');
-        const checkboxData = {};
-        
-        checkboxes.forEach((checkbox, index) => {
-          const isChecked = checkbox.querySelector('.checkbox-checked') !== null;
-          const type = checkbox.classList.contains('checkbox-green') ? 'green' : 'red';
-          checkboxData[`checkbox_${index}`] = {
-            type: type,
-            checked: isChecked
-          };
-        });
-        
-        // Create data object to send
-        const urlParams = new URLSearchParams(window.location.search);
-        const saveData = {
-          category: urlParams.get('category'),
-          baseName: urlParams.get('baseName'),
-          inputData: inputData,
-          checkboxData: checkboxData
-        };
-        
-        // Send data to server (this is a placeholder - you'll need to implement the actual API endpoint)
-        fetch('/api/save-annotations', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(saveData)
-        })
-        .then(response => {
-          if (response.ok) {
-            alert('Annotations saved successfully!');
-          } else {
-            throw new Error('Failed to save annotations');
+          // Add function to close preview modal
+          function closePreview() {
+            document.getElementById('previewModal').style.display = 'none';
           }
-        })
-        .catch(error => {
-          console.error('Error saving annotations:', error);
-          alert('Error saving annotations. Please try again.');
-        });
-      }
-      </script>
+
+          // Add function to confirm and save
+          function confirmSave() {
+            // Get the preview data
+            const previewData = document.getElementById('previewData').textContent;
+
+            // Get category and baseName from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const category = urlParams.get('category');
+            const baseName = urlParams.get('baseName');
+
+            // Close the preview modal
+            closePreview();
+
+            // Send data to server for saving
+            fetch('/api/videos/save-human-check', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                category: category,
+                baseName: baseName,
+                data: JSON.parse(previewData)
+              })
+            })
+              .then(response => {
+                if (response.ok) {
+                  return response.json();
+                } else {
+                  throw new Error('Failed to save file on server');
+                }
+              })
+              .then(result => {
+                alert('Annotations saved successfully to server!');
+              })
+              .catch(error => {
+                console.error('Error saving annotations:', error);
+                alert('Error saving annotations to server. Please try again.');
+              });
+          }
+
+          // Keep the original saveAnnotations function for actual implementation
+          function saveAnnotations() {
+            // Collect all frame input data
+            const frameInputs = document.querySelectorAll('.frame-input-field');
+            const inputData = {};
+
+            frameInputs.forEach((input, index) => {
+              inputData[`frame_${index}`] = input.value;
+            });
+
+            // Collect all checkbox data
+            const checkboxes = document.querySelectorAll('.checkbox-green, .checkbox-red');
+            const checkboxData = {};
+
+            checkboxes.forEach((checkbox, index) => {
+              const isChecked = checkbox.querySelector('.checkbox-checked') !== null;
+              const type = checkbox.classList.contains('checkbox-green') ? 'green' : 'red';
+              checkboxData[`checkbox_${index}`] = {
+                type: type,
+                checked: isChecked
+              };
+            });
+
+            // Create data object to send
+            const urlParams = new URLSearchParams(window.location.search);
+            const saveData = {
+              category: urlParams.get('category'),
+              baseName: urlParams.get('baseName'),
+              inputData: inputData,
+              checkboxData: checkboxData
+            };
+
+            // Send data to server (this is a placeholder - you'll need to implement the actual API endpoint)
+            fetch('/api/save-annotations', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(saveData)
+            })
+              .then(response => {
+                if (response.ok) {
+                  alert('Annotations saved successfully!');
+                } else {
+                  throw new Error('Failed to save annotations');
+                }
+              })
+              .catch(error => {
+                console.error('Error saving annotations:', error);
+                alert('Error saving annotations. Please try again.');
+              });
+          }
+        </script>
 
 
       </div>
@@ -233,32 +239,32 @@
   <script>
     AUTH.requireAuth();
     UI.mountUserHeader('welcomeUser', 'logoutBtn');
-    
+
     // Parse URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const category = urlParams.get('category');
     const baseName = urlParams.get('baseName');
-    
+
     // Display the parameters
     document.getElementById('categoryValue').textContent = category || 'Not specified';
     document.getElementById('baseNameValue').textContent = baseName || 'Not specified';
-    
+
     // Construct video path and display it
     if (category && baseName) {
       // Add .mp4 extension if not present
       const fileName = baseName.endsWith('.mp4') ? baseName : `${baseName}.mp4`;
       const videoPath = `/dataset/Videos_v1/${category}/${fileName}`;
       document.getElementById('videoPath').textContent = videoPath;
-      
+
       // Set video source
       const videoPlayer = document.getElementById('videoPlayer');
       videoPlayer.src = videoPath;
-      
+
       // Show video player when loaded
-      videoPlayer.addEventListener('loadeddata', function() {
+      videoPlayer.addEventListener('loadeddata', function () {
         document.getElementById('loadingMessage').style.display = 'none';
         videoPlayer.style.display = 'block';
-        
+
         // Adjust container size to fit video
         setTimeout(() => {
           const container = document.querySelector('.video-container');
@@ -266,13 +272,13 @@
           container.style.height = videoRect.height + 'px';
         }, 100);
       });
-      
+
       // Handle video loading errors
-      videoPlayer.addEventListener('error', function() {
+      videoPlayer.addEventListener('error', function () {
         document.getElementById('loadingMessage').textContent = 'Failed to load video';
         document.getElementById('loadingMessage').style.color = 'var(--danger)';
       });
-      
+
       // Load frames
       loadFrames(category, baseName);
     } else {
@@ -281,44 +287,45 @@
       document.getElementById('loadingMessage').style.color = 'var(--danger)';
       document.getElementById('framesContainer').innerHTML = '<p>Unable to load frames: Missing category or baseName parameters</p>';
     }
-    
+
     async function loadFrames(category, baseName) {
       const framesContainer = document.getElementById('framesContainer');
-      
+
       try {
         // Fetch frames from the backend API
         const response = await fetch(`/api/videos/frames?category=${encodeURIComponent(category)}&base_name=${encodeURIComponent(baseName)}`);
-        
+
         if (!response.ok) {
           throw new Error(`Failed to load frames: ${response.status} ${response.statusText}`);
         }
-        
+
         const data = await response.json();
         const frames = data.frames || [];
-        
+
         if (frames.length === 0) {
           framesContainer.innerHTML = '<p>No frames found for this video</p>';
           return;
         }
-        
+
         // Sort frames by name to ensure proper order
         frames.sort();
-        
+
         // Clear container
         framesContainer.innerHTML = '';
-        
+
         // Create frame elements
         frames.forEach((frameName, index) => {
           // Extract frame number from frame name (e.g., frame_00012.jpg -> 12)
           const frameNumberMatch = frameName.match(/frame_(\d+)\./);
           const frameNumber = frameNumberMatch ? parseInt(frameNumberMatch[1], 10) : index;
-          
+
           const framePath = `/dataset/Frames_v1/${category}/${baseName}/${frameName}`;
           const frameElement = document.createElement('div');
           frameElement.className = 'frame-item';
           frameElement.innerHTML = `
             <div class="frame-info">
               <img src="${framePath}" alt="${frameName}" class="frame-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA4MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjMzAzOTQyIi8+CjxwYXRoIGQ9Ik0zNSA0Mkg0NVY0MEgzNVY0MlpNNDUgMzBIMzVWMjhINDVWMzBaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0zNSA0MEg0NVYzOEgzNVY0MFoiIGZpbGw9IiNBMkIwMkUiLz4KPHBhdGggZD0iTTM1IDM4SDQ1VjM2SDM1VjM4WiIgZmlsbD0iI0EyQjAyRSIvPgo8cGF0aCBkPSJNMzUgMzZINDVWMzRIMzVWMzZaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0zNSAzNEg0NVYzMkgzNVYzRaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0zNSAzMkg0NVYzMEgzNVYzMloiIGZpbGw9IiNBMkIwMkUiLz4KPHBhdGggZD0iTTM1IDMwSDQ1VjI4SDM1VjMwWiIgZmlsbD0iI0EyQjAyRSIvPgo8cGF0aCBkPSJNMzUgMjhINDVWMjZIMzVWMjhaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0zNSAyNkg0NVYyNEgzNVYyNloiIGZpbGw9IiNBMkIwMkUiLz4KPHBhdGggZD0iTTM1IDI0SDQ1VjIySDM1VjI0WiIgZmlsbD0iI0EyQjAyRSIvPgo8cGF0aCBkPSJNMzUgMjJINDVWMjBIMzVWMjJaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0zNSAyMEg0NVYxOEgzNVYyMFoiIGZpbGw9IiNBMkIwMkUiLz4KPHBhdGggZD0iTTM1IDE4SDQ1VjE2SDM1VjE4WiIgZmlsbD0iI0EyQjAyRSIvPgo8cGF0aCBkPSJNMzUgMTZINDVWMTQuMzVIMzVWMTZaIiBmaWxsPSIjQTJCMDJFIi8+Cjwvc3ZnPgo='">
+              
               <div class="frame-name" style="font-size: 0.5rem; margin-bottom: 4px;">${frameName}</div>
               <div class="frame-input">
                 <input type="text" class="frame-input-field" placeholder="Add notes or additional information..." 
@@ -328,53 +335,53 @@
             </div>
           `;
           framesContainer.appendChild(frameElement);
-          
+
           // Load masks for this frame
           loadMasks(category, baseName, frameName, frameNumber);
         });
-      
+
       } catch (error) {
         console.error('Error loading frames:', error);
         framesContainer.innerHTML = `<p>Error loading frames: ${error.message}</p>`;
       }
     }
-    
+
 
     async function loadMasks(category, baseName, frameName, frameNumber) {
-    const masksContainer = document.getElementById(`masks-${frameNumber}`);
-    
-    try {
+      const masksContainer = document.getElementById(`masks-${frameNumber}`);
+
+      try {
         // Extract frame number from frame name (e.g., frame_00012.jpg -> 12)
         const frameNumMatch = frameName.match(/frame_(\d+)\./);
         const frameNum = frameNumMatch ? frameNumMatch[1] : '0';
-        
+
         // Construct API URL with correct parameter names
         const apiUrl = `/api/videos/masks?category=${encodeURIComponent(category)}&base_name=${encodeURIComponent(baseName)}&frame_number=${encodeURIComponent(frameNum)}`;
-        
+
         // Fetch the list of masks from the server
         const response = await fetch(apiUrl);
-        
+
         if (!response.ok) {
-            throw new Error(`Failed to load masks: ${response.status} ${response.statusText}`);
+          throw new Error(`Failed to load masks: ${response.status} ${response.statusText}`);
         }
-        
+
         // Parse the response as JSON
         const data = await response.json();
         const masks = data.masks || [];
-        
+
         if (masks.length === 0) {
-            masksContainer.innerHTML = '<p class="muted">No masks available</p>';
-            return;
+          masksContainer.innerHTML = '<p class="muted">No masks available</p>';
+          return;
         }
-        
+
         // Create mask elements
         masks.forEach(mask => {
-            const maskPath = `/masks/${category}/${baseName}/frame_${frameNum}/${mask}`;
-            console.log('Mask path:', maskPath);  // 这里是调试输出
+          const maskPath = `/masks/${category}/${baseName}/frame_${frameNum}/${mask}`;
+          console.log('Mask path:', maskPath);  // 这里是调试输出
 
-            const maskElement = document.createElement('div');
-            maskElement.className = 'mask-item';
-            maskElement.innerHTML = `
+          const maskElement = document.createElement('div');
+          maskElement.className = 'mask-item';
+          maskElement.innerHTML = `
                 <img src="${maskPath}" alt="${mask}" class="mask-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNDUiIHZpZXdCb3g9IjAgMCA2MCA0NSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjQ1IiBmaWxsPSIjMzAzOTQyIi8+CjxwYXRoIGQ9Ik0yMCAyNUgzMFYyM0gyMFYyNVpNMzAgMTVIMjBWMTNIMzBWMTVaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0yMCAyM0gzMFYyMUgyMFYyM1oiIGZpbGw9IiNBMkIwMkUiLz4KPHBhdGggZD0iTTIwIDIxSDMwVjE5SDIwVjIxWiIgZmlsbD0iI0EyQjAyRSIvPgo8cGF0aCBkPSJNMjAgMTlIMzBWMTdIMjBWMTlaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0yMCAxN0gzMFYxNUgyMFYxN1oiIGZpbGw9IiNBMkIwMkUiLz4KPHBhdGggZD0iTTIwIDE1SDMwVjEzSDIwVjE1WiIgZmlsbD0iI0EyQjAyRSIvPgo8cGF0aCBkPSJNMjAgMTNIMzBWMTFIMjBWMTNaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0yMCAxMUgzMFY5SDIwVjExWiIgZmlsbD0iI0EyQjAyRSIvPgo8cGF0aCBkPSJNMjAgOUgzMFY3SDIwVjlaIiBmaWxsPSIjQTJCMDJFIi8+CjxwYXRoIGQ9Ik0yMCA3SDMwVjVIMjBWNVoiIGZpbGw9IiNBMkIwMkUiLz4KPHBhdGggZD0iTTIwIDVIMzBWNEgyMFY1WiIgZmlsbD0iI0EyQjAyRSIvPgo8L3N2Zz4K'">
                 <div class="mask-info">
                     <div class="mask-name">${mask}</div>
@@ -384,13 +391,13 @@
                     <div class="checkbox-red" onclick="toggleCheckbox(this, 'red')"></div>
                 </div>
             `;
-            masksContainer.appendChild(maskElement);
+          masksContainer.appendChild(maskElement);
         });
-    } catch (error) {
+      } catch (error) {
         console.error('Error loading masks:', error);
         masksContainer.innerHTML = `<p class="muted">Error loading masks: ${error.message}</p>`;
+      }
     }
-}
 
     function toggleCheckbox(element, type) {
       // Remove any existing checkmark
@@ -399,7 +406,7 @@
         existingCheck.remove();
         return;
       }
-      
+
       // Add checkmark
       const checkmark = document.createElement('div');
       checkmark.className = 'checkbox-checked';
@@ -408,4 +415,5 @@
     }
   </script>
 </body>
+
 </html>
