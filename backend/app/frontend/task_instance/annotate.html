@@ -152,6 +152,19 @@
             // Get the current user's username
             const username = document.getElementById('welcomeUser').textContent.replace('Welcome, ', '');
 
+            // Parse the preview data
+            const parsedPreviewData = JSON.parse(previewData);
+
+            // Prepare data to send - fix the structure
+            const requestData = {
+              category: category,
+              baseName: baseName,
+              username: username,
+              data: parsedPreviewData  // This is the actual annotation data
+            };
+
+            console.log("Sending data to server:", requestData);
+
             // Close the preview modal
             closePreview();
 
@@ -161,29 +174,38 @@
               headers: {
                 'Content-Type': 'application/json'
               },
-              body: JSON.stringify({
-                category: category,
-                baseName: baseName,
-                username: username,
-                data: JSON.parse(previewData)
-              })
+              body: JSON.stringify(requestData)
             })
-              .then(response => {
+              .then(async response => {
+                console.log("Response status:", response.status);
+                console.log("Response headers:", [...response.headers.entries()]);
+                
                 if (response.ok) {
-                  return response.json();
+                  const contentType = response.headers.get("content-type");
+                  if (contentType && contentType.indexOf("application/json") !== -1) {
+                    return response.json();
+                  } else {
+                    const text = await response.text();
+                    throw new Error(`Expected JSON response but got: ${text}`);
+                  }
                 } else {
-                  throw new Error('Failed to save file on server');
+                  const text = await response.text();
+                  throw new Error(`Server error ${response.status}: ${text}`);
                 }
               })
               .then(result => {
-                alert('Annotations saved successfully to server!');
+                console.log("Success response:", result);
+                if (result.log_path) {
+                  alert(`Annotations saved successfully to server!\nLog file created at: ${result.log_path}`);
+                } else {
+                  alert(`Annotations saved successfully to server!\n${result.message || ''}`);
+                }
               })
               .catch(error => {
                 console.error('Error saving annotations:', error);
-                alert('Error saving annotations to server. Please try again.');
+                alert(`Error saving annotations to server: ${error.message}\nPlease check the console for more details.`);
               });
           }
-
           // Keep the original saveAnnotations function for actual implementation
           function saveAnnotations() {
             // Collect all frame input data

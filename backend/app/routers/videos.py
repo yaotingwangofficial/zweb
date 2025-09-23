@@ -1,5 +1,7 @@
 import os
 import json
+import logging
+from datetime import datetime
 from fastapi import APIRouter, Query, HTTPException, Request
 from ..config import settings
 from ..models import VideoListResp
@@ -130,39 +132,90 @@ def list_audios(
 # 保存人工检查结果
 @router.post("/save-human-check")
 async def save_human_check(request: Request):
-    """
-    保存人工检查的标注结果到指定目录
-    """
     try:
-        # 获取请求体中的JSON数据
+        # Get JSON data from request
         data = await request.json()
+        print(f"Received data: {data}")
         
-        # 提取数据
+        # Extract required fields
         category = data.get("category")
         base_name = data.get("baseName")
-        annotation_data = data.get("data")
+        username = data.get("username")
+        annotation_data = data.get("data")  # This is the nested data object
         
-        # 检查必要参数
-        if not category or not base_name or not annotation_data:
-            raise HTTPException(status_code=400, detail="Missing required parameters: category, baseName, or data")
+        # Validate required fields
+        if not all([category, base_name, username, annotation_data]):
+            missing = [k for k, v in {
+                "category": category, 
+                "baseName": base_name, 
+                "username": username, 
+                "data": annotation_data
+            }.items() if not v]
+            raise HTTPException(
+                status_code=400,
+                detail=f"Missing required fields: {', '.join(missing)}"
+            )
         
-        # 定义保存目录
-        save_directory = "/home/share/wangyt/zweb/dataset/HumanCheck_v1"
-        
-        # 创建目录（如果不存在）
-        os.makedirs(save_directory, exist_ok=True)
-        
-        # 创建文件路径
-        file_name = f"{category}_{base_name}_annotations.json"
-        file_path = os.path.join(save_directory, file_name)
-        
-        # 保存JSON数据到文件
-        with open(file_path, 'w', encoding='utf-8') as f:
-            json.dump(annotation_data, f, indent=2, ensure_ascii=False)
-        
-        return {"status": "success", "message": "Annotations saved successfully", "file_path": file_path}
-        
-    except json.JSONDecodeError:
-        raise HTTPException(status_code=400, detail="Invalid JSON data")
+        try:
+            # Save annotation data
+            save_directory = "/home/share/wangyt/zweb/dataset/HumanCheck_v1"
+            os.makedirs(save_directory, exist_ok=True)
+            
+            file_name = f"{category}_{base_name}_annotations.json"
+            file_path = os.path.join(save_directory, file_name)
+            
+            # Save the annotation data (the nested object)
+            with open(file_path, 'w', encoding='utf-8') as f:
+                json.dump(annotation_data, f, indent=2, ensure_ascii=False)
+            
+            # Create log entry
+            log_directory = "/home/share/wangyt/zweb/dataset/Logs_v1"
+            user_log_directory = os.path.join(log_directory, username)
+            os.makedirs(user_log_directory, exist_ok=True)
+            
+            # Create safe filename for log (replace problematic characters)
+            safe_category = category.replace("/", "+").replace("\\", "+")
+            log_file_name = f"{safe_category}+{base_name}.log"
+            log_file_path = os.path.join(user_log_directory, log_file_name)
+            
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            log_entry = f"[{timestamp}] User '{username}' submitted annotations for {category}/{base_name}\n"
+            
+            with open(log_file_path, 'a', encoding='utf-8') as log_file:
+                log_file.write(log_entry)
+            
+            return {
+                "status": "success",
+                "message": "Annotations saved successfully",
+                "file_path": file_path,
+                "log_path": log_file_path
+            }
+            
+        except PermissionError as e:
+            logging.error(f"Permission error: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Permission error when saving files: {str(e)}"
+            )
+        except Exception as save_error:
+            logging.error(f"Error saving files: {str(save_error)}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Error saving files: {str(save_error)}"
+            )
+            
+    except HTTPException:
+        # Re-raise HTTP exceptions
+        raise
+    except json.JSONDecodeError as e:
+        logging.error(f"Invalid JSON data: {str(e)}")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid JSON data: {str(e)}"
+        )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error saving annotations: {str(e)}")
+        logging.error(f"Unexpected error: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unexpected error: {str(e)}"
+        )
