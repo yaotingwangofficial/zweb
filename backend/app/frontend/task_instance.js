@@ -72,10 +72,27 @@
   async function load() {
     showError('');
     try {
+      console.log('Loading page:', state.page);
       const { total, items } = await fetchVideos(state.page, CONFIG.PAGE_SIZE);
+      console.log('Fetched items:', items);
       state.total = total;
       state.totalPages = Math.max(1, Math.ceil(total / CONFIG.PAGE_SIZE));
-      state.itemsOnPage = items;
+      
+      // Filter out already annotated tasks
+      console.log('Filtering items...');
+      const unannotatedItems = [];
+      for (const item of items) {
+        const videoInfo = parseVideoPath(item);
+        console.log('Checking item:', videoInfo);
+        const isAnnotated = await checkIfAnnotated(videoInfo.category, videoInfo.baseName);
+        console.log('Is annotated:', isAnnotated, 'for', videoInfo.category, videoInfo.baseName);
+        if (!isAnnotated) {
+          unannotatedItems.push(item);
+        }
+      }
+      
+      console.log('Unannotated items:', unannotatedItems);
+      state.itemsOnPage = unannotatedItems;
       render();
     } catch (err) {
       console.error(err);
@@ -83,12 +100,39 @@
     }
   }
 
+  async function checkIfAnnotated(category, baseName) {
+    try {
+      // Construct the expected annotation filename
+      const fileName = `${category}+${baseName}.json`;
+      console.log('Checking annotation file:', fileName);
+      
+      // Check if annotation file exists
+      const url = `${CONFIG.API_BASE}/api/videos/check-annotation-exists?file=${encodeURIComponent(fileName)}`;
+      console.log('Request URL:', url);
+      
+      const response = await fetch(url);
+      console.log('Response status:', response.status);
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Check result:', result);
+        return result.exists;
+      }
+      console.log('Response not OK');
+      return false;
+    } catch (error) {
+      console.error('Error checking annotation status:', error);
+      return false; // If we can't check, assume it's not annotated
+    }
+  }
+
   async function fetchVideos(page, pageSize) {
-    const url = `${CONFIG.API_BASE}${CONFIG.API_PATH}`;
-    // const url = `${CONFIG.API_BASE}${CONFIG.API_PATH}?page=${page}&pageSize=${pageSize}`;
+    const url = `${CONFIG.API_BASE}${CONFIG.API_PATH}?page=${page}&page_size=${pageSize}`;
+    console.log('Fetching videos from:', url);
     const res = await fetch(url, { cache: 'no-store' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
+    console.log('Videos data:', data);
 
     // 期望：{ total:number, items:string[] }
     if (typeof data.total !== 'number' || !Array.isArray(data.items)) {
@@ -98,23 +142,34 @@
   }
 
   function render() {
+    console.log('Rendering items:', state.itemsOnPage);
     els.tbody.innerHTML = '';
     const startIndex = (state.page - 1) * CONFIG.PAGE_SIZE + 1;
 
-    state.itemsOnPage.forEach((raw, idx) => {
-      const info = parseVideoPath(raw);
-      const target = buildTargetHtmlPath(info.category, info.baseName);
-
+    // Check if there are no unannotated tasks
+    if (state.itemsOnPage.length === 0) {
+      console.log('No unannotated items to display');
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>
-          <a class="btn btn--primary btn--sm" href="${target}">开始</a>
-        </td>
-        <td class="num">${startIndex + idx}</td>
-        <td class="mono">${info.displayName}</td>
+        <td colspan="3" class="muted tc">暂无未标注的任务</td>
       `;
       els.tbody.appendChild(tr);
-    });
+    } else {
+      state.itemsOnPage.forEach((raw, idx) => {
+        const info = parseVideoPath(raw);
+        const target = buildTargetHtmlPath(info.category, info.baseName);
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            <a class="btn btn--primary btn--sm" href="${target}">开始</a>
+          </td>
+          <td class="num">${startIndex + idx}</td>
+          <td class="mono">${info.displayName}</td>
+        `;
+        els.tbody.appendChild(tr);
+      });
+    }
 
     els.pageNow.textContent = String(state.page);
     els.pageTotal.textContent = String(state.totalPages);
