@@ -1,5 +1,6 @@
 import os
-from fastapi import APIRouter, Query, HTTPException
+import json
+from fastapi import APIRouter, Query, HTTPException, Request
 from ..config import settings
 from ..models import VideoListResp
 from ..services.scanner import query_videos, refresh_index
@@ -61,7 +62,7 @@ def list_frames(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# 新增：获取视频帧对应的 mask 列表
+# 获取视频帧对应的 mask 列表
 @router.get("/masks")
 def list_masks(
     category: str = Query(..., description="视频类别"),
@@ -92,3 +93,44 @@ def list_masks(
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# 保存人工检查结果
+@router.post("/save-human-check")
+async def save_human_check(request: Request):
+    """
+    保存人工检查的标注结果到指定目录
+    """
+    try:
+        # 获取请求体中的JSON数据
+        data = await request.json()
+        
+        # 提取数据
+        category = data.get("category")
+        base_name = data.get("baseName")
+        annotation_data = data.get("data")
+        
+        # 检查必要参数
+        if not category or not base_name or not annotation_data:
+            raise HTTPException(status_code=400, detail="Missing required parameters: category, baseName, or data")
+        
+        # 定义保存目录
+        save_directory = "/home/share/wangyt/zweb/dataset/HumanCheck_v1"
+        
+        # 创建目录（如果不存在）
+        os.makedirs(save_directory, exist_ok=True)
+        
+        # 创建文件路径
+        file_name = f"{category}_{base_name}_annotations.json"
+        file_path = os.path.join(save_directory, file_name)
+        
+        # 保存JSON数据到文件
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(annotation_data, f, indent=2, ensure_ascii=False)
+        
+        return {"status": "success", "message": "Annotations saved successfully", "file_path": file_path}
+        
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid JSON data")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error saving annotations: {str(e)}")

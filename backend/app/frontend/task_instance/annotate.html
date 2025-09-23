@@ -131,9 +131,43 @@
 
       // Add function to confirm and save
       function confirmSave() {
-        // In a real implementation, you would send the data to the server here
+        // Get the preview data
+        const previewData = document.getElementById('previewData').textContent;
+        
+        // Get category and baseName from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const category = urlParams.get('category');
+        const baseName = urlParams.get('baseName');
+        
+        // Close the preview modal
         closePreview();
-        alert('Annotations saved successfully!');
+        
+        // Send data to server for saving
+        fetch('/api/videos/save-human-check', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            category: category,
+            baseName: baseName,
+            data: JSON.parse(previewData)
+          })
+        })
+        .then(response => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error('Failed to save file on server');
+          }
+        })
+        .then(result => {
+          alert('Annotations saved successfully to server!');
+        })
+        .catch(error => {
+          console.error('Error saving annotations:', error);
+          alert('Error saving annotations to server. Please try again.');
+        });
       }
 
       // Keep the original saveAnnotations function for actual implementation
@@ -357,8 +391,6 @@
         masksContainer.innerHTML = `<p class="muted">Error loading masks: ${error.message}</p>`;
     }
 }
-
-
 
     function toggleCheckbox(element, type) {
       // Remove any existing checkmark
