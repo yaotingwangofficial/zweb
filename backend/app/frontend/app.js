@@ -30,7 +30,7 @@ const UI = {
     const btn = document.getElementById(logoutBtnId);
 
     if (user && nameEl) {
-      nameEl.textContent = `欢迎，${user.username}`;
+      nameEl.textContent = `${user.username}`;
     }
     if (btn) {
       btn.addEventListener('click', AUTH.logout.bind(AUTH));

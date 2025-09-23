@@ -75,6 +75,9 @@
             const category = urlParams.get('category');
             const baseName = urlParams.get('baseName');
 
+            // Get the current user's username
+            const username = document.getElementById('welcomeUser').textContent.replace('Welcome, ', '');
+
             // Collect all frame data
             const frameItems = document.querySelectorAll('.frame-item');
             const annotations = [];
@@ -122,6 +125,7 @@
             const previewData = {
               category: category,
               baseName: baseName,
+              username: username,
               annotations: annotations
             };
 
@@ -143,7 +147,10 @@
             // Get category and baseName from URL parameters
             const urlParams = new URLSearchParams(window.location.search);
             const category = urlParams.get('category');
-            const baseName = urlParams.get('baseName');
+            const baseName = urlParams.get('baseName'); 
+
+            // Get the current user's username
+            const username = document.getElementById('welcomeUser').textContent.replace('Welcome, ', '');
 
             // Close the preview modal
             closePreview();
@@ -157,6 +164,7 @@
               body: JSON.stringify({
                 category: category,
                 baseName: baseName,
+                username: username,
                 data: JSON.parse(previewData)
               })
             })
