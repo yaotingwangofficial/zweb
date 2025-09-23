@@ -84,15 +84,11 @@
     flex: 1;
 }
 
-.frame-name {
-    font-weight: 600;
+/* .frame-name {
+    font-weight: 400;
     margin-bottom: 4px;
-}
+} */
 
-.frame-number {
-    color: var(--muted);
-    font-size: 0.9rem;
-}
 
 .masks-container {
     margin-top: 10px;
@@ -156,3 +152,6 @@
 .checkbox-checked {
     content: "✓";
 }
+
+/* ======== */
+
