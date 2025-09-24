@@ -109,7 +109,8 @@
                   masksData.push({
                     maskName: maskName,
                     greenChecked: isGreenChecked,
-                    redChecked: isRedChecked
+                    redChecked: isRedChecked,
+                    id: maskItem.querySelector('.mask-id-input').value || ''
                   });
                 });
               }
@@ -225,9 +226,14 @@
             checkboxes.forEach((checkbox, index) => {
               const isChecked = checkbox.querySelector('.checkbox-checked') !== null;
               const type = checkbox.classList.contains('checkbox-green') ? 'green' : 'red';
+
+              const idInput = checkbox.parentElement.querySelector('.mask-id-input');
+              const idValue = idInput ? idInput.value : '';
+
               checkboxData[`checkbox_${index}`] = {
                 type: type,
-                checked: isChecked
+                checked: isChecked,
+                id: idValue
               };
             });
 
@@ -408,7 +414,7 @@
 
         // Create mask elements
         masks.forEach(mask => {
-          const maskPath = `/masks/${category}/${baseName}/frame_${frameNum}/${mask}`;
+          const maskPath = `/masks/${category}/${baseName}/frame_${frameNum}/PseudoCombine/${mask}`;
           console.log('Mask path:', maskPath);  // 这里是调试输出
 
           const maskElement = document.createElement('div');
@@ -419,6 +425,7 @@
               <div class="mask-name">${mask}</div>
             </div>
             <div class="checkbox-container">
+              <input type="text" class="mask-id-input" placeholder="id" maxlength="1" style="width: 30px; margin-right: 5px;">
               <div class="checkbox-green" onclick="toggleCheckbox(this, 'green')"></div>
               <div class="checkbox-red" onclick="toggleCheckbox(this, 'red')"></div>
             </div>

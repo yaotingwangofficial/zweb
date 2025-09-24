@@ -75,7 +75,7 @@ def list_masks(
     获取指定视频的指定帧的所有 mask
     """
     # 构建 mask 目录路径
-    masks_dir = settings.PSEUDOMASK_ROOT / category / base_name / f"frame_{frame_number}"
+    masks_dir = settings.PSEUDOMASK_ROOT / category / base_name / f"frame_{int(frame_number):05d}/PseudoCombine"
     
     # 检查目录是否存在
     if not masks_dir.exists():
@@ -90,7 +90,8 @@ def list_masks(
         
         # 按文件名排序以确保顺序正确
         mask_files.sort()
-        
+        # print(mask_files)
+        # input('==')
         return {"masks": mask_files}
         
     except Exception as e:
@@ -158,7 +159,8 @@ async def save_human_check(request: Request):
         
         try:
             # Save annotation data
-            save_directory = "/home/share/wangyt/zweb/dataset/HumanCheck_v1"
+            # save_directory = "/home/share/wangyt/zweb/dataset/HumanCheck_v1"
+            save_directory = settings.SAVE_DIR
             os.makedirs(save_directory, exist_ok=True)
             
             file_name = f"{category}+{base_name}.json"
@@ -169,7 +171,8 @@ async def save_human_check(request: Request):
                 json.dump(annotation_data, f, indent=2, ensure_ascii=False)
             
             # Create log entry
-            log_directory = "/home/share/wangyt/zweb/dataset/Logs_v1"
+            # log_directory = "/home/share/wangyt/zweb/dataset/Logs_v1"
+            log_directory = settings.LOG_DIR
             user_log_directory = os.path.join(log_directory, username)
             os.makedirs(user_log_directory, exist_ok=True)
             
@@ -221,7 +224,7 @@ async def save_human_check(request: Request):
         )
 
 
-HUMAN_CHECK_DIR = '/home/share/wangyt/zweb/dataset/HumanCheck_v1'
+HUMAN_CHECK_DIR = settings.SAVE_DIR
 
 @router.get("/check-annotation-exists")
 def check_annotation_exists(file: str = Query(..., description="Annotation file name to check")):

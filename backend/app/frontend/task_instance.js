@@ -1,13 +1,9 @@
 // task_instance.js  —— 自动从后端检索分页数据
 (function () {
-  const CONFIG = {
+  let CONFIG = {
     PAGE_SIZE: 10,
-
-    // 后端 API 地址：请按实际端口/域名调整
-    API_BASE: 'http://10.0.0.43:8012',
-    API_PATH: '/api/videos',
-
-    // 后端会从 VIDEOS_ROOT 环境变量读取根路径，这里无需再传 store
+    API_BASE: '',
+    API_PATH: '/api/videos'
   };
 
   const els = {
@@ -32,7 +28,17 @@
 
   document.addEventListener('DOMContentLoaded', init);
 
-  function init() {
+  async function init() {
+    try {
+      // Fetch configuration from backend
+      const configResponse = await fetch('/api/config');
+      if (configResponse.ok) {
+        CONFIG = {...CONFIG, ...await configResponse.json()};
+      }
+    } catch (error) {
+      console.warn('Failed to load config from server, using defaults:', error);
+    }
+    
     els.tbody = document.getElementById('listBody');
     els.prevBtn = document.getElementById('prevBtn');
     els.nextBtn = document.getElementById('nextBtn');
