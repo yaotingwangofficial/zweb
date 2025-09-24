@@ -1,5 +1,15 @@
 # zweb
 
+requirements.txt
+```
+fastapi>=0.111
+uvicorn[standard]>=0.30
+pydantic>=2.7
+python-multipart>=0.0.9
+orjson>=3.10
+cachetools>=5.3
+```
+
 ```
 cd backend
 sh run_demo.sh
