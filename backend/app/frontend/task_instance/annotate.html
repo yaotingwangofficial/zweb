@@ -71,6 +71,40 @@
         <script>
           // Add this function to preview annotations before saving
           function previewAnnotations() {
+            // Add validation for checked green boxes having IDs
+            const uncheckedItems = [];
+            const frameItems = document.querySelectorAll('.frame-item');
+            
+            frameItems.forEach((frameItem, frameIndex) => {
+              const masksContainer = frameItem.querySelector('.masks-container');
+              if (masksContainer) {
+                const maskItems = masksContainer.querySelectorAll('.mask-item');
+                maskItems.forEach((maskItem, maskIndex) => {
+                  const greenCheckbox = maskItem.querySelector('.checkbox-green');
+                  const idInput = maskItem.querySelector('.mask-id-input');
+                  
+                  // Check if green checkbox is checked but ID is empty
+                  const isGreenChecked = greenCheckbox && greenCheckbox.querySelector('.checkbox-checked') !== null;
+                  const isIdEmpty = !idInput || !idInput.value.trim();
+                  
+                  if (isGreenChecked && isIdEmpty) {
+                    const frameNameElement = frameItem.querySelector('.frame-name');
+                    const maskNameElement = maskItem.querySelector('.mask-name');
+                    const frameName = frameNameElement ? frameNameElement.textContent : `Frame ${frameIndex}`;
+                    const maskName = maskNameElement ? maskNameElement.textContent : `Mask ${maskIndex}`;
+                    
+                    uncheckedItems.push(`${frameName} - ${maskName}`);
+                  }
+                });
+              }
+            });
+            
+            if (uncheckedItems.length > 0) {
+              alert(`Please fill in IDs for the following checked items:\n${uncheckedItems.join('\n')}`);
+              return;
+            }
+            
+            // Continue with original preview logic
             const urlParams = new URLSearchParams(window.location.search);
             const category = urlParams.get('category');
             const baseName = urlParams.get('baseName');
@@ -79,7 +113,6 @@
             const username = document.getElementById('welcomeUser').textContent.replace('Welcome, ', '');
 
             // Collect all frame data
-            const frameItems = document.querySelectorAll('.frame-item');
             const annotations = [];
 
             frameItems.forEach((frameItem, index) => {
@@ -101,15 +134,11 @@
                   const maskName = maskNameElement ? maskNameElement.textContent : 'Unknown mask';
 
                   const greenCheckbox = maskItem.querySelector('.checkbox-green');
-                  const redCheckbox = maskItem.querySelector('.checkbox-red');
-
                   const isGreenChecked = greenCheckbox && greenCheckbox.querySelector('.checkbox-checked') !== null;
-                  const isRedChecked = redCheckbox && redCheckbox.querySelector('.checkbox-checked') !== null;
 
                   masksData.push({
                     maskName: maskName,
                     greenChecked: isGreenChecked,
-                    redChecked: isRedChecked,
                     id: maskItem.querySelector('.mask-id-input').value || ''
                   });
                 });
@@ -134,7 +163,6 @@
             document.getElementById('previewData').textContent = JSON.stringify(previewData, null, 2);
             document.getElementById('previewModal').style.display = 'flex';
           }
-
           // Add function to close preview modal
           function closePreview() {
             document.getElementById('previewModal').style.display = 'none';
@@ -220,12 +248,13 @@
             });
 
             // Collect all checkbox data
-            const checkboxes = document.querySelectorAll('.checkbox-green, .checkbox-red');
+            const checkboxes = document.querySelectorAll('.checkbox-green');
             const checkboxData = {};
 
             checkboxes.forEach((checkbox, index) => {
               const isChecked = checkbox.querySelector('.checkbox-checked') !== null;
-              const type = checkbox.classList.contains('checkbox-green') ? 'green' : 'red';
+              // const type = checkbox.classList.contains('checkbox-green') ? 'green' : 'red';
+              const type = 'green';
 
               const idInput = checkbox.parentElement.querySelector('.mask-id-input');
               const idValue = idInput ? idInput.value : '';
@@ -427,7 +456,6 @@
             <div class="checkbox-container">
               <input type="text" class="mask-id-input" placeholder="id" maxlength="1" style="width: 30px; margin-right: 5px;">
               <div class="checkbox-green" onclick="toggleCheckbox(this, 'green')"></div>
-              <div class="checkbox-red" onclick="toggleCheckbox(this, 'red')"></div>
             </div>
           `;
           masksContainer.appendChild(maskElement);

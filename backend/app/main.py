@@ -9,6 +9,8 @@ from app.routers.auth import router as auth_router
 
 # API_BASE = "http://10.0.0.43:8012"
 API_BASE = settings.API_BASE
+API_BASE = ''
+# API_BASE = os.environ.get("API_BASE", "")
 
 app = FastAPI(title="Annotation Backend")
 
@@ -61,3 +63,6 @@ app.include_router(auth_router)
 # uvicorn app.main:app --host 0.0.0.0 --port 8012 --reload
 
 # http://10.0.0.43:8012/api/videos
+
+
+# ./cloudflared tunnel --url http://127.0.0.1:8012
